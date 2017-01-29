@@ -64,3 +64,19 @@ To create a kubernetes cluster, run the following command:
 ```bash
 $ minikube start --vm-driver=virtualbox
 ```
+
+```bash
+$ kubectl run hello-minikube --image=gcr.io/google_containers/echoserver:1.4 --port=8080
+```
+
+```bash
+kubectl expose deployment hello-minikube --type=NodePort
+```
+
+```bash
+$ kubectl get pod
+```
+
+```bash
+$ curl $(minikube service hello-minikube --url)
+```
