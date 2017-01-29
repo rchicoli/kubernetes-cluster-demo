@@ -10,7 +10,9 @@ https://console.cloud.google.com/storage/browser/kubernetes-release/release/v1.5
 
 ### Enabling shell autocompletion
 
+```bash
 echo "source <(kubectl completion bash)" >> ~/.bashrc
+```
 
 ## Running Kubernetes Locally via Minikube
 
