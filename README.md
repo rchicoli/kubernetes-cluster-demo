@@ -123,7 +123,7 @@ Deleting just a ReplicationController
 
 You can delete a ReplicationController without affecting any of its pods.
 
-Using kubectl, specify the --cascade=false option to kubectl delete.
+Using `kubectl`, specify the `--cascade=false` option to kubectl delete.
 
 When using the REST API or go client library, simply delete the ReplicationController object.
 
@@ -132,7 +132,7 @@ Isolating pods from a ReplicationController
 
 ### Isolating pods from a ReplicationController
 
-Pods may be removed from a ReplicationController’s target set by changing their labels. This technique may be used to remove pods from service for debugging, data recovery, etc. Pods that are removed in this way will be replaced automatically (assuming that the number of replicas is not also changed).
+Pods may be removed from a ReplicationController's target set by changing their labels. This technique may be used to remove pods from service for debugging, data recovery, etc. Pods that are removed in this way will be replaced automatically (assuming that the number of replicas is not also changed).
 Com
 
 ### Deleting Deployments
