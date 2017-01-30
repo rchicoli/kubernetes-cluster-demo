@@ -1,0 +1,42 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: consul-slave
+spec:
+  replicas: 2
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        service: consul-slave
+    spec:
+      containers:
+      - image: progrium/consul:latest
+        name: consul-slave
+        args:
+          - -server
+          - -join
+          - consul-master
+        resources: {}
+        ports:
+        - name: server-rpc
+          containerPort: 8300
+          protocol: TCP
+        - name: lan
+          containerPort: 8301
+          protocol: TCP
+        - name: wan
+          containerPort: 8302
+          protocol: TCP
+        - name: cli-rpc
+          containerPort: 8400
+          protocol: TCP
+        - name: http
+          containerPort: 8500
+          protocol: TCP
+        - name: dns1
+          containerPort: 8600
+          protocol: TCP
+        - name: dns2
+          containerPort: 53
+status: {}
