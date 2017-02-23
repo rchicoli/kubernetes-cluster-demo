@@ -3,8 +3,6 @@ kind: Deployment
 metadata:
   name: elk
 spec:
-  replicas: 1
-  strategy: {}
   template:
     metadata:
       labels:
@@ -24,6 +22,10 @@ spec:
             - name: es-storage
               mountPath: /usr/share/elasticsearch/data
         - image: logstash:latest
+          args:
+            - logstash
+            - -f
+            - /etc/logstash/conf.d/logstash.conf
           name: logstash
           env:
             - name: ELASTICSEARCH_URL
@@ -33,9 +35,8 @@ spec:
               containerPort: 5000
               protocol: TCP
           volumeMounts:
-            - name: elk-config
+            - name: logstash-config
               mountPath: /etc/logstash/conf.d
-              subPath: elk/config/logstash
         - image: kibana
           name: kibana
           env:
@@ -46,12 +47,25 @@ spec:
               containerPort: 5601
               protocol: TCP
           volumeMounts:
-            - name: elk-config
+            - name: kibana-config
               mountPath: /opt/kibana/config
-              subPath: elk/config/kibana
+            - name: logstash-config
+              mountPath: /tmp/config
+              # subPath: kibana
       volumes:
-        - name: elk-config
-          gitRepo:
-            repository: https://github.com/rchicoli/kubernetes-microservices.git
         - name: es-storage
           emptyDir: {}
+        - name: kibana-config
+          configMap:
+            name: elk-config
+            items:
+            - key: kibana-config
+              path: kibana.yml
+        - name: logstash-config
+          configMap:
+            name: elk-config
+            items:
+            - key: logstash-config
+              path: logstash.conf
+        #   gitRepo:
+        #     repository: https://github.com/rchicoli/kubernetes-microservices.git
