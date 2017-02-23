@@ -1,0 +1,28 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kibana
+spec:
+  template:
+    metadata:
+      labels:
+        service: kibana
+      namespace: default
+    spec:
+      containers:
+        - image: kibana
+          name: kibana
+          ports:
+            - name: dashboard
+              containerPort: 5601
+              protocol: TCP
+          volumeMounts:
+            - name: kibana-config
+              mountPath: /opt/kibana/config
+      volumes:
+        - name: kibana-config
+          configMap:
+            name: kibana-config
+            items:
+            - key: kibana.yml
+              path: kibana.yml

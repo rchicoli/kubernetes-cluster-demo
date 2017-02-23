@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+data:
+  logstash.conf: |
+    input {
+        tcp {
+          port => 5000
+          codec => json
+        }
+    }
+
+    ## Add your filters / logstash plugins configuration here
+    output {
+        elasticsearch {
+            hosts => "elasticsearch.default.svc.cluster.local:9200"
+        }
+    }
+metadata:
+  name: logstash-config

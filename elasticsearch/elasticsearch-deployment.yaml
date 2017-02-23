@@ -1,0 +1,27 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: elasticsearch
+spec:
+  template:
+    metadata:
+      labels:
+        service: elasticsearch
+    spec:
+      containers:
+        - image: elasticsearch:latest
+          name: elasticsearch
+          ports:
+            - name: api
+              containerPort: 9200
+              protocol: TCP
+            - name: cluster
+              containerPort: 9300
+              protocol: TCP
+          volumeMounts:
+            - name: es-storage
+              mountPath: /usr/share/elasticsearch/data
+      volumes:
+        # place holder for another storage
+        - name: es-storage
+          emptyDir: {}

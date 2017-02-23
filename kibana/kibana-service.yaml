@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    service: kibana
+  name: kibana
+spec:
+  ports:
+  - nodePort: 31796
+    port: 5601
+    protocol: TCP
+    targetPort: 5601
+  selector:
+    service: kibana
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}

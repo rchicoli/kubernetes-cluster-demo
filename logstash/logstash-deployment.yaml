@@ -1,0 +1,32 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: logstash
+spec:
+  template:
+    metadata:
+      labels:
+        service: logstash
+      namespace: default
+    spec:
+      containers:
+        - image: logstash:latest
+          args:
+            - logstash
+            - -f
+            - /etc/logstash/conf.d/logstash.conf
+          name: logstash
+          ports:
+            - name: json
+              containerPort: 5000
+              protocol: TCP
+          volumeMounts:
+            - name: logstash-config
+              mountPath: /etc/logstash/conf.d
+      volumes:
+        - name: logstash-config
+          configMap:
+            name: logstash-config
+            items:
+            - key: logstash.conf
+              path: logstash.conf
