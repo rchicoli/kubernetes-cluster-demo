@@ -1,0 +1,57 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: elk
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        service: elk
+    spec:
+      containers:
+        - image: elasticsearch:latest
+          name: elasticsearch
+          ports:
+            - name: api
+              containerPort: 9200
+              protocol: TCP
+            - name: cluster
+              containerPort: 9300
+              protocol: TCP
+          volumeMounts:
+            - name: es-storage
+              mountPath: /usr/share/elasticsearch/data
+        - image: logstash:latest
+          name: logstash
+          env:
+            - name: ELASTICSEARCH_URL
+              value: http://127.0.0.1:9200
+          ports:
+            - name: json
+              containerPort: 5000
+              protocol: TCP
+          volumeMounts:
+            - name: elk-config
+              mountPath: /etc/logstash/conf.d
+              subPath: elk/config/logstash
+        - image: kibana
+          name: kibana
+          env:
+            - name: ELASTICSEARCH_URL
+              value: http://127.0.0.1:9200
+          ports:
+            - name: dashboard
+              containerPort: 5601
+              protocol: TCP
+          volumeMounts:
+            - name: elk-config
+              mountPath: /opt/kibana/config
+              subPath: elk/config/kibana
+      volumes:
+        - name: elk-config
+          gitRepo:
+            repository: https://github.com/rchicoli/kubernetes-microservices.git
+        - name: es-storage
+          emptyDir: {}
