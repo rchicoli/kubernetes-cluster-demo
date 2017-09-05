@@ -1,0 +1,39 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: redis-master
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redis
+        role: master
+        tier: backend
+    spec:
+      containers:
+      - name: master
+        image: redis:3.0.7-alpine
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 6379
+        command:
+          - redis-server
+          # - --appendonly yes
+          - --loglevel verbose
+          - --auto-aof-rewrite-percentage 0
+          - --auto-aof-rewrite-min-size 1000mb
+          # max size of the available storage
+          # set percentage back to 100%
+        volumeMounts:
+          - mountPath: /data
+            name: redis-master-data
+        securityContext:
+          runAsUser: 0
+      volumes:
+      - name: redis-master-data
+        hostPath:
+          path: /srv/redis/master-data
