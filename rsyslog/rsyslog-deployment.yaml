@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: ConfigMap
+data:
+  redis-plugin.conf: |
+
+    # module(load="imuxsock")  # provides support for local system logging
+    module(load="omhiredis") # support for sending to Redis
+    module(load="imfile")    # For tailing files
+
+    input(
+      type="imfile"
+      File="/var/log/nginx/access.log"
+      Tag="nginx:"
+    )
+
+    action(
+      type="omhiredis"
+      server="redis-master"
+      serverport="6379"
+      mode="publish"
+      key="nginx"
+    )
+
+metadata:
+  name: redis-plugin-config
+
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: rsyslog-redis
+  labels:
+    name: rsyslog-redis
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: rsyslog-redis
+    spec:
+      containers:
+      - image: itrust/rsyslog:8.23.0
+      # - image: itrust/rsyslog:latest
+        name: rsyslog-redis
+        # resources:
+        #   requests:
+        #     cpu: "20m"
+        #     memory: "55M"
+        # env:
+        # - name:  ENVVARNAME
+        #   value:  ENVVARVALUE
+        # ports:
+        # - containerPort:  5000
+        #   name:  my-name
+        # volumeMounts:
+        # - mountPath: /data
+        #   name: data
+        volumeMounts:
+          - name:  redis-plugin-conf
+            mountPath: /etc/rsyslog.d
+          - name: nginx-log
+            mountPath: /var/log/nginx
+      securityContext:
+        seLinuxOptions:
+          type: spc_t
+      volumes:
+        - name: redis-plugin-conf
+          configMap:
+            name: redis-plugin-config
+            items:
+            - key: redis-plugin.conf
+              path: redis-plugin.conf
+        - name: nginx-log
+          hostPath:
+            path: /srv/nginx/log
