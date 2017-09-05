@@ -10,7 +10,8 @@ spec:
       namespace: default
     spec:
       containers:
-        - image: logstash:latest
+        - image: logstash:5.4.0-alpine
+        # - image: docker.elastic.co/logstash/logstash:5.5.2
           args:
             - logstash
             - -f
@@ -23,6 +24,15 @@ spec:
           volumeMounts:
             - name: logstash-config
               mountPath: /etc/logstash/conf.d
+            - name: logstash-patterns
+              mountPath: /etc/logstash/patterns
+          resources:
+            limits:
+              cpu: 300m
+          lifecycle:
+            postStart:
+              exec:
+                command: ["/bin/chmod", "644", "/etc/logstash/conf.d/logstash.conf"]
       volumes:
         - name: logstash-config
           configMap:
@@ -30,3 +40,9 @@ spec:
             items:
             - key: logstash.conf
               path: logstash.conf
+        - name: logstash-patterns
+          configMap:
+            name: logstash-config
+            items:
+            - key: logstash.patterns
+              path: nginx.grok

@@ -3,17 +3,61 @@ kind: ConfigMap
 data:
   logstash.conf: |
     input {
+        redis {
+            host => "redis-master"
+            data_type => "list"
+            key => "nginx-logs"
+        }
         tcp {
-          port => 5000
-          codec => json
+            port => 5000
+            codec => json
         }
     }
 
-    ## Add your filters / logstash plugins configuration here
-    output {
-        elasticsearch {
-            hosts => "elasticsearch.default.svc.cluster.local:9200"
-        }
+    # {
+    #   @timestamp: 2017-09-04T03:04:10.707Z,
+    #   beat: {
+    #       hostname: filebeat-796252453-wjrd9,
+    #       name: filebeat-796252453-wjrd9,
+    #       version: 5.5.2
+    #   },
+    #   input_type: log,
+    #   message: 172.17.0.1 - - [01/Sep/2017:09:48:45+0000]
+    #            POST /api/v1/test HTTP/1.1 200 355 - curl/7.54.0 0.066 480,
+    #   offset: 1521,
+    #   source: /var/log/nginx/access.log,
+    #   type: log
+    # }
+    filter {
+      grok {
+          patterns_dir => ["/etc/logstash/patterns"]
+          match => [
+              "message", "%{NGINXSYSLOG}"
+          ]
+          tag_on_failure => [ "_grokparsefailure_nginx" ]
+          add_tag => "nginx-access"
+      }
+      mutate {
+          remove_tag => [ "_grokparsefailure_syslog", "_grokparsefailure_nginx" ]
+          replace => { "program" => "nginx" }
+      }
     }
+    output {
+      elasticsearch {
+        hosts => ["elasticsearch-logging"]
+        index => "syslog-%{+YYYY.MM.dd}"
+        user => "elastic"
+        password => "changeme"
+      }
+    }
+
+  # 2017-09-04T12:31:18.789Z 172.17.0.1 - - [04/Sep/2017:12:31:17 +0000]
+  # \"POST /api/v1/test HTTP/1.1\" 200 355 \"-\" \"curl/7.54.0\" 0.033 480"
+  logstash.patterns: |
+    NGUSERNAME [a-zA-Z\.\@\-\+_%]+
+    NGUSER %{NGUSERNAME}
+    NGINXRESPONSETIME [0-9]+\.[0-9][0-9][0-9]
+    NGINXSYSLOG %{IPORHOST:clientip} %{USER:ident} %{USER:auth} \[%{HTTPDATE:timestamp}\] "%{WORD:verb} %{URIPATHPARAM:request} HTTP/%{NUMBER:httpversion}" %{NUMBER:response:int} %{NUMBER:bytes:int} (?:"(?:%{URI:referrer}|-)"|%{QS:referrer}) %{QS:agent} %{NUMBER:response_time:float} %{NUMBER:request_lengh:int}
+
 metadata:
   name: logstash-config

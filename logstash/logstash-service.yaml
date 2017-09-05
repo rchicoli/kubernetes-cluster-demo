@@ -6,13 +6,10 @@ metadata:
   name: logstash
 spec:
   ports:
-  - nodePort: 32074
-    port: 5000
+  - port: 5000
     protocol: TCP
-    targetPort: 5000
+    targetPort: json
   selector:
     service: logstash
-  sessionAffinity: None
-  type: NodePort
 status:
   loadBalancer: {}
