@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+data:
+  filebeat.yml: |
+
+    filebeat.prospectors:
+    - input_type: log
+      paths:
+        - /var/log/nginx/access.log
+
+    output.redis:
+      hosts:
+        - redis-master
+      key: "nginx-logs"
+      timeout: 5
+      # codec.format:
+      #   string: '%{[@timestamp]} otc01 otc01 nginx: %{[message]}'
+
+metadata:
+  name: filebeat-config
