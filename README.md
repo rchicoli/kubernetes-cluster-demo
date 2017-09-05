@@ -1,5 +1,7 @@
 # Kubernetes Cluster Demo
 
+```bash
+# TODO
 Kubernetes master is running at https://172.32.128.10:443
 Elasticsearch is running at https://172.32.128.10:443/api/v1/namespaces/kube-system/services/elasticsearch-logging/proxy
 Heapster is running at https://172.32.128.10:443/api/v1/namespaces/kube-system/services/heapster/proxy
@@ -7,6 +9,7 @@ Kibana is running at https://172.32.128.10:443/api/v1/namespaces/kube-system/ser
 KubeDNS is running at https://172.32.128.10:443/api/v1/namespaces/kube-system/services/kube-dns/proxy
 Grafana is running at https://172.32.128.10:443/api/v1/namespaces/kube-system/services/monitoring-grafana/proxy
 InfluxDB is running at https://172.32.128.10:443/api/v1/namespaces/kube-system/services/monitoring-influxdb/proxy
+```
 
 #### Kubernetes Concepts
 
